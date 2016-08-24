@@ -1,4 +1,4 @@
-![Tori](https://raw.githubusercontent.com/boostcode/tori/master/.github/tori-logo.png)
+![Tori APNS](https://github.com/boostcode/Tori-APNS/blob/master/.github/tori-apns-logo.png?raw=true)
 
 [![Issues](https://img.shields.io/github/issues/boostcode/tori-APNS.svg?style=flat)](https://github.com/boostcode/tori-APNS/issues)
 [![codebeat badge](https://codebeat.co/badges/193276f6-ea57-4cb5-9e8d-306df4169b01)](https://codebeat.co/projects/github-com-boostcode-tori-apns)
