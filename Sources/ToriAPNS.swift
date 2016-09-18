@@ -30,7 +30,7 @@ public enum APNSPriority: Int {
 
 // MARK: - Payload
 public class APNSPayload {
-    
+
     var badge: Int?
     var text = ""
     var sound: String?
@@ -39,7 +39,7 @@ public class APNSPayload {
     var id: String?
     var extra: [String: String]?
     var priority = APNSPriority.high
-    
+
     init(withText text: String, badge: Int? = nil, sound: String? = nil, ttl: Int = 0, topic: String? = nil, id: String? = nil, priority: APNSPriority = .high, extra: [String: String] = [:]) {
         self.text = text
         self.badge = badge
@@ -50,22 +50,22 @@ public class APNSPayload {
         self.extra = extra
         self.priority = priority
     }
-    
+
     func toString() -> String? {
         var json: JSON = ["text": text]
-        
+
         if let b = badge {
             json["badge"] = JSON(b)
         }
-        
+
         if let s = sound {
             json["sound"] = JSON(s)
         }
-        
+
         if let e = extra {
             json["extra"] = JSON(e)
         }
-        
+
         return json.rawString()
     }
 }
@@ -76,95 +76,83 @@ public struct APNSCertificate {
     var keyPath = ""
 }
 
-private typealias CurlStringConverter = String
-extension CurlStringConverter {
-    
-    func curlString() -> UnsafeMutablePointer<Int8> {
-        
-        let cString = self.cString(using: String.Encoding.utf8)
-        let data = NSData(bytes: cString, length: Int(strlen(cString!))+1)
-        
-        return UnsafeMutablePointer<Int8>(data.bytes)!
-    }
-}
-
 public class APNS {
-    
+
     private var certs: APNSCertificate
     private var env: APNSGateway
-    private var handle: UnsafeMutablePointer<Void>
-    
+    private var handle: UnsafeMutableRawPointer
+
     public init(withCerts certs: APNSCertificate, inSandbox isSandbox: Bool = true) {
-        
+
         // setup curl
         handle = curl_easy_init()
-        
+
         // verbose mode
         curlHelperSetOptBool(handle, CURLOPT_VERBOSE, 1)
-        
+
         // set certs
         self.certs = certs
-        
+
         if isSandbox {
             env = .sandbox
         } else {
             env = .production
         }
-        
+
         // setup certificates
-        curlHelperSetOptString(handle, CURLOPT_SSLCERT, certs.certPath.curlString())
-        curlHelperSetOptString(handle, CURLOPT_SSLCERTTYPE, "PEM".curlString())
-        curlHelperSetOptString(handle, CURLOPT_SSLKEY, certs.keyPath.curlString())
-        curlHelperSetOptString(handle, CURLOPT_SSLKEYTYPE, "PEM".curlString())
-        
+        curlHelperSetOptString(handle, CURLOPT_SSLCERT, certs.certPath)
+        curlHelperSetOptString(handle, CURLOPT_SSLCERTTYPE, "PEM")
+        curlHelperSetOptString(handle, CURLOPT_SSLKEY, certs.keyPath)
+        curlHelperSetOptString(handle, CURLOPT_SSLKEYTYPE, "PEM")
+
         // force protocol to http2
         curlHelperSetOptInt(handle, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0)
     }
-    
+
     public func send(payload push: APNSPayload, to token: String) {
-        
+
         var headersList: UnsafeMutablePointer<curl_slist>?
-        
+
         // set url for push according env
-        curlHelperSetOptString(handle, CURLOPT_URL, (env.rawValue + "/3/device/\(token)").curlString())
-        
+        curlHelperSetOptString(handle, CURLOPT_URL, (env.rawValue + "/3/device/\(token)"))
+
         // set port to 443 (we can omit it)
         curlHelperSetOptInt(handle, CURLOPT_PORT, 443)
-        
+
         // follow location
         curlHelperSetOptBool(handle, CURLOPT_FOLLOWLOCATION, 1)
-        
+
         // set POST request
         curlHelperSetOptBool(handle, CURLOPT_POST, 1)
-        
+
         // setup payload
         guard let jsonString = push.toString() else { return }
-        let payload = jsonString.curlString()
-        
+        let payload = jsonString
+
         curlHelperSetOptString(handle, CURLOPT_POSTFIELDS, payload)
-        
+
         // set headers
         curlHelperSetOptBool(handle, CURLOPT_HEADER, 1)
-        headersList = curl_slist_append(headersList, "Accept: application/json".curlString())
-        headersList = curl_slist_append(headersList, "Content-Type: application/json".curlString())
-        headersList = curl_slist_append(headersList, "apns-priority: \(push.priority.rawValue)".curlString())
-        headersList = curl_slist_append(headersList, "apns-expiration: \(push.ttl)".curlString())
-        
+        headersList = curl_slist_append(headersList, "Accept: application/json")
+        headersList = curl_slist_append(headersList, "Content-Type: application/json")
+        headersList = curl_slist_append(headersList, "apns-priority: \(push.priority.rawValue)")
+        headersList = curl_slist_append(headersList, "apns-expiration: \(push.ttl)")
+
         if let topic = push.topic {
-            headersList = curl_slist_append(headersList, "apns-topic: \(topic)".curlString())
+            headersList = curl_slist_append(headersList, "apns-topic: \(topic)")
         }
-        
+
         if let id = push.id {
-            headersList = curl_slist_append(headersList, "apns-id: \(id)".curlString())
+            headersList = curl_slist_append(headersList, "apns-id: \(id)")
         }
-        
+
         curlHelperSetOptList(handle, CURLOPT_HTTPHEADER, headersList)
-        
+
         // TODO: improve response handler
         let ret = curl_easy_perform(handle)
-        
+
         print("ret = \(ret)")
-        
+
         if ret == CURLE_OK {
             //print(String(utf8String: error!)!)
         } else {
@@ -172,5 +160,5 @@ public class APNS {
             print(String(utf8String: error!)!)
         }
     }
-    
+
 }
