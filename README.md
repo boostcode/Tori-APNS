@@ -8,7 +8,7 @@
 ![Swift 2.2 compatible](https://img.shields.io/badge/swift2-compatible-4BC51D.svg?style=flat)
 ![Apache 2](https://img.shields.io/badge/license-Apache2-blue.svg?style=flat)
 
-`tori-APNS` is a simple lib that allows you to send Apple Push Notifications using `curl HTTP/2` protocol in linux & macOS, it is compatible starting from `swift DEVELOPMENT-SNAPSHOT-2016-07-25-a`.
+`tori-APNS` is a simple lib that allows you to send Apple Push Notifications using `curl HTTP/2` protocol in linux & macOS, it is compatible starting from `swift 3`.
 
 # Usage
 
@@ -27,7 +27,7 @@ brew link curl --force
 Add this row to your `Package.swift` file:
 
 ```swift
-.Package(url: "https://github.com/boostcode/tori-APNS.git", majorVersion: 0, minor: 1)
+.Package(url: "https://github.com/boostcode/tori-APNS.git", majorVersion: 0, minor: 2)
 ```
 
 And then run `swift fetch` command.
