@@ -74,6 +74,11 @@ public class APNSPayload {
 public struct APNSCertificate {
     public var certPath = ""
     public var keyPath = ""
+
+    public init(certPath: String, keyPath: String) {
+        self.certPath = certPath
+        self.keyPath = keyPath
+    }
 }
 
 public class APNS {
