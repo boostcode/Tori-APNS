@@ -40,7 +40,7 @@ public class APNSPayload {
     var extra: [String: String]?
     var priority = APNSPriority.high
 
-    init(withText text: String, badge: Int? = nil, sound: String? = nil, ttl: Int = 0, topic: String? = nil, id: String? = nil, priority: APNSPriority = .high, extra: [String: String] = [:]) {
+    public init(withText text: String, badge: Int? = nil, sound: String? = nil, ttl: Int = 0, topic: String? = nil, id: String? = nil, priority: APNSPriority = .high, extra: [String: String] = [:]) {
         self.text = text
         self.badge = badge
         self.sound = sound
@@ -72,8 +72,13 @@ public class APNSPayload {
 
 // MARK: - Certificate
 public struct APNSCertificate {
-    var certPath = ""
-    var keyPath = ""
+    public var certPath = ""
+    public var keyPath = ""
+
+    public init(certPath: String, keyPath: String) {
+        self.certPath = certPath
+        self.keyPath = keyPath
+    }
 }
 
 public class APNS {
