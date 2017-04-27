@@ -37,8 +37,8 @@ And then run `swift fetch` command.
 Create your APNS certificates, then export as `P12` file without password then proceed in this way in your shell:
 
 ```shell
-openssl pkcs12 -in path.p12 -out newfile.crt.pem -clcerts -nokeys
-openssl pkcs12 -in path.p12 -out newfile.key.pem -nocerts -nodes
+openssl pkcs12 -in path.p12 -out apns-crt.pem -clcerts -nokeys
+openssl pkcs12 -in path.p12 -out apns-key.pem -nocerts -nodes
 ```
 
 ## 4- Integrate in your app
@@ -52,8 +52,8 @@ import ToriAPNS
 then instantiate a `var` to handle pushes:
 
 ```swift
-let push = APNS.init(withCerts: APNSCertificate(certPath: "/path/of/your file/apns-dev.crt.pem",
-                                     keyPath: "/path/of/your file/apns-dev.key.pem"))
+let push = APNS.init(withCerts: APNSCertificate(certPath: "/path/of/your file/apns-crt.pem",
+                                     keyPath: "/path/of/your file/apns-key.pem"))
 ```
 
 `APNS.init` takes a second parameter `inSandbox` that is `true` by default, if you switch to `false` pushes will be sent using production gateway.
@@ -83,8 +83,8 @@ push.send(payload: payload, to: "12345678")
 So the overall structure in your app should look pretty similar to:
 
 ```swift
-let push = APNS.init(withCerts: APNSCertificate(certPath: "/path/of/your file/apns-dev.crt.pem",
-                                     keyPath: "/path/of/your file/apns-dev.key.pem"))
+let push = APNS.init(withCerts: APNSCertificate(certPath: "/path/of/your file/apns-crt.pem",
+                                     keyPath: "/path/of/your file/apns-key.pem"))
 
 let payload = APNSPayload(withText: "Test")
 
